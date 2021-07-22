@@ -7,7 +7,7 @@ import { googleLogin, loginWithEmailPassword } from '../../actions/auth';
 export const LoginScreen = () => {
     const dispatch = useDispatch();
 
-    const [formValues, handleInputChange] = useForm( {
+    const { values: formValues, handleChange: formChange } = useForm( {
         email: 'test@gmail.com',
         password: '123'
     } );
@@ -35,7 +35,7 @@ export const LoginScreen = () => {
                     name='email'
                     autoComplete='off'
                     value={email}
-                    onChange={handleInputChange}
+                    onChange={formChange}
                 />
                 <input
                     className='auth__input'
@@ -43,7 +43,7 @@ export const LoginScreen = () => {
                     placeholder='Password'
                     name='password'
                     value={password}
-                    onChange={handleInputChange}
+                    onChange={formChange}
                 />
                 <button className='btn btn-primary btn-block' type='submit'>
                     Login
