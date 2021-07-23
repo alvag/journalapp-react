@@ -1,79 +1,120 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useForm } from '../../hooks/useForm';
+import { useDispatch, useSelector } from 'react-redux';
 import validator from 'validator/es';
+
+import { useForm } from '../../hooks/useForm';
+import { removeError, setError } from '../../actions/ui';
+import { registerUser } from '../../actions/auth';
 
 export const RegisterScreen = () => {
 
-    const form = useForm( {
-        name: [
-            'Test 1', [
-                [validator.isEmpty, { ignore_whitespace: true }]
-            ]
-        ],
-        email: ['test1@gmail.com', [validator.isEmail, validator.isEmpty]],
-        password: ['123456', [validator.isEmpty, [validator.isLength, { min: 6 }]]],
-        confirm_password: ['123456', [validator.isEmpty, [validator.isLength, { min: 6 }]]]
-    } );
+    const dispatch = useDispatch();
+    const { msgError, loading } = useSelector( state => state.ui );
 
-    const { name, email, password, confirm_password } = form.values;
+    useEffect( () => {
+        dispatch( removeError() );
+    }, [dispatch] );
 
-    const handleRegister = ( e ) => {
-        e.preventDefault();
+    const handleRegister = () => {
 
-        if ( form.isValid && password === confirm_password ) {
-            console.log( 'Formulario correcto' );
-            console.log( form.values );
+        if ( data.password !== data.confirm_password ) {
+            dispatch( setError( 'Las contraseñas no coinciden' ) );
+            return;
         }
 
+        dispatch( removeError() );
+
+        const { email, password, name } = data;
+
+        dispatch( registerUser( email, password, name ) );
+
+
     };
+
+    const { data, handleChange, handleSubmit, errors } = useForm( {
+        name: 'Test 1',
+        email: 'test1@gmail.com',
+        password: '123456',
+        confirm_password: '123456'
+    }, {
+        name: [
+            {
+                validator: validator.isEmpty,
+                params: { ignore_whitespace: true },
+                message: 'El nombre es requerido'
+            }
+        ],
+        email: validator.isEmail,
+        password: [
+            validator.isEmpty,
+            {
+                validator: validator.isLength,
+                params: { min: 6 }
+            }
+        ],
+        confirm_password: [
+            {
+                validator: validator.isLength,
+                params: { min: 6 },
+                message: 'Debe tener al menos 6 digitos'
+            }
+        ]
+    }, handleRegister );
+
 
     return (
         <>
             <h3 className='auth__title'>Register</h3>
 
-            <form onSubmit={handleRegister}>
-
-                <div className='auth__alert-error'>
-                    Hola Mundo
-                </div>
+            <form onSubmit={handleSubmit}>
 
                 <input
-                    className='auth__input'
+                    className={'auth__input ' + ( errors.name ? 'invalid' : '' )}
                     type='text'
                     placeholder='Name'
                     name='name'
                     autoComplete='off'
-                    value={name}
-                    onChange={form.handleChange}
+                    value={data.name}
+                    onChange={handleChange}
                 />
                 <input
-                    className='auth__input'
+                    className={'auth__input ' + ( errors.email ? 'invalid' : '' )}
                     type='text'
                     placeholder='Email'
                     name='email'
                     autoComplete='off'
-                    value={email}
-                    onChange={form.handleChange}
+                    value={data.email}
+                    onChange={handleChange}
                 />
                 <input
-                    className='auth__input'
+                    className={'auth__input ' + ( errors.password ? 'invalid' : '' )}
                     type='password'
                     placeholder='Password'
                     name='password'
-                    value={password}
-                    onChange={form.handleChange}
+                    value={data.password}
+                    onChange={handleChange}
                 />
                 <input
-                    className='auth__input'
+                    className={'auth__input ' + ( errors.confirm_password ? 'invalid' : '' )}
                     type='password'
                     placeholder='Confirm password'
                     name='confirm_password'
-                    value={confirm_password}
-                    onChange={form.handleChange}
+                    value={data.confirm_password}
+                    onChange={handleChange}
                 />
+
+                {
+                    msgError &&
+                    <div className='auth__alert-error'>
+                        {msgError}
+                    </div>
+                }
+
+
                 <button
                     className='btn btn-primary btn-block mb-5'
+                    disabled={loading}
                     type='submit'
                 >
                     Register

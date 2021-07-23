@@ -1,23 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from '../../hooks/useForm';
 import { googleLogin, loginWithEmailPassword } from '../../actions/auth';
+import validator from 'validator/es';
+import { removeError } from '../../actions/ui';
 
 export const LoginScreen = () => {
     const dispatch = useDispatch();
+    const { loading, msgError } = useSelector( state => state.ui );
 
-    const { values: formValues, handleChange: formChange } = useForm( {
-        email: 'test@gmail.com',
-        password: '123'
-    } );
+    useEffect( () => {
+        dispatch( removeError() );
+    }, [dispatch] );
 
-    const { email, password } = formValues;
-
-    const handleLogin = ( e ) => {
-        e.preventDefault();
+    const handleLogin = () => {
+        const { email, password } = data;
         dispatch( loginWithEmailPassword( email, password ) );
     };
+
+    const { data, handleSubmit, handleChange, errors } = useForm( {
+        email: 'test1@gmail.com',
+        password: '123456'
+    }, {
+        email: validator.isEmail,
+        password: [
+            validator.isEmpty,
+            validator.isLength
+        ]
+    }, handleLogin );
+
 
     const handleGoogleLogin = () => {
         dispatch( googleLogin() );
@@ -27,25 +39,35 @@ export const LoginScreen = () => {
         <>
             <h3 className='auth__title'>Login</h3>
 
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSubmit}>
                 <input
-                    className='auth__input'
+                    className={'auth__input ' + ( errors.email ? 'invalid' : '' )}
                     type='text'
                     placeholder='Email'
                     name='email'
                     autoComplete='off'
-                    value={email}
-                    onChange={formChange}
+                    value={data.email}
+                    onChange={handleChange}
                 />
                 <input
-                    className='auth__input'
+                    className={'auth__input ' + ( errors.password ? 'invalid' : '' )}
                     type='password'
                     placeholder='Password'
                     name='password'
-                    value={password}
-                    onChange={formChange}
+                    value={data.password}
+                    onChange={handleChange}
                 />
-                <button className='btn btn-primary btn-block' type='submit'>
+
+                {
+                    msgError &&
+                    <div className='auth__alert-error'>
+                        {msgError}
+                    </div>
+                }
+
+                <button className='btn btn-primary btn-block'
+                        disabled={loading}
+                        type='submit'>
                     Login
                 </button>
 

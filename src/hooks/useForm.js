@@ -1,90 +1,101 @@
 import { useState } from 'react';
+// https://www.npmjs.com/package/validator
 
-
-export const useForm = ( initialState = {} ) => {
-    const formValidators = {};
+export const useForm = ( initialValues = {}, validations = {}, onSubmit = () => {} ) => {
+    let valid = true;
     let formErrors = {};
-    let isValid = false;
 
-    const getValues = () => {
-        const formValues = {};
-        Object.entries( initialState ).forEach( e => {
-            const k = e[ 0 ];
-            let value = e[ 1 ];
+    let [data, setData] = useState( initialValues );
+    let [errors, setErrors] = useState( {} );
 
-            if ( value instanceof Array ) {
-                const validator = value[ 1 ];
-                if ( validator instanceof Array ) {
-                    formValidators[ k ] = validator;
-                } else {
-                    formValidators[ k ] = [validator];
-                }
-
-                value = value[ 0 ];
-            }
-
-
-            formValues[ k ] = value;
-        } );
-
-        return formValues;
-    };
-
-    const getErrors = () => {
-        formErrors = {};
-
-        Object.entries( formValues ).forEach( x => {
-            const [field, value] = x;
-
-            ( formValidators[ field ] || [] ).forEach( v => {
-                let params = {};
-                let validator = v;
-                if ( v instanceof Array ) {
-                    validator = v[ 0 ];
-                    params = v[ 1 ] || {};
-                }
-                const { name } = validator;
-                const result = validator( value, params );
-                if ( ['isEmail', 'isLength'].includes( name ) ) {
-                    if ( !result ) {
-                        formErrors[ field ] = true;
-                    }
-                } else if ( result ) {
-                    formErrors[ field ] = true;
-                }
-
-            } );
-        } );
-
-        isValid = !Object.entries( formErrors ).length;
-    };
-
-    const values = getValues();
-
-    let [formValues, setValues] = useState( values );
-
-    getErrors();
-
-    const resetForm = () => {
-        setValues( initialState );
-    };
-
-
-    const formChange = ( { target } ) => {
-        formValues = {
-            ...formValues,
+    const handleChange = ( { target } ) => {
+        data = {
+            ...data,
             [ target.name ]: target.value
         };
-        setValues( formValues );
+        setData( data );
+    };
 
-        getErrors();
+    const validate = ( validator, key, value, message = '', params = {} ) => {
+        const { name } = validator;
+        const result = validator( value, params );
+
+        if ( ['isEmail', 'isLength'].includes( name ) ) {
+            if ( !result ) {
+                valid = false;
+                formErrors = {
+                    ...formErrors,
+                    [ key ]: { message }
+                };
+            }
+        } else if ( result ) {
+            valid = false;
+            formErrors = {
+                ...formErrors,
+                [ key ]: { message }
+            };
+        }
+    };
+
+    const handleSubmit = ( e ) => {
+        try {
+            e.preventDefault();
+
+            if ( validations ) {
+                valid = true;
+                formErrors = {};
+
+                for ( const key in data ) {
+                    const value = data[ key ];
+                    const fieldValidations = validations[ key ];
+
+                    if ( fieldValidations ) {
+
+                        if ( typeof fieldValidations === 'function' ) {
+
+                            validate( fieldValidations, key, value );
+
+                        } else if ( fieldValidations instanceof Array ) {
+                            fieldValidations.forEach( v => {
+                                let params = {};
+                                let validator = v;
+                                let message = '';
+
+                                if ( typeof v === 'object' && v !== null ) {
+                                    validator = v.validator;
+                                    params = v.params;
+                                    message = v.message;
+                                }
+
+                                validate( validator, key, value, message, params );
+                            } );
+                        }
+
+                    }
+                }
+
+                if ( !valid ) {
+                    setErrors( formErrors );
+                    return;
+                }
+            }
+
+            setErrors( {} );
+
+            if ( onSubmit ) {
+                onSubmit();
+            }
+
+        } catch ( e ) {
+            console.log( e );
+        }
 
     };
 
     return {
-        values: formValues,
-        handleChange: formChange,
-        resetForm,
-        isValid
+        data,
+        handleChange,
+        handleSubmit,
+        errors
     };
 };
