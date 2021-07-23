@@ -16,6 +16,10 @@ export const useForm = ( initialValues = {}, validations = {}, onSubmit = () => 
         setData( data );
     };
 
+    const reset = ( newState = initialValues ) => {
+        setData( newState );
+    };
+
     const validate = ( validator, key, value, message = '', params = {} ) => {
         const { name } = validator;
         const result = validator( value, params );
@@ -96,6 +100,7 @@ export const useForm = ( initialValues = {}, validations = {}, onSubmit = () => 
         data,
         handleChange,
         handleSubmit,
-        errors
+        errors,
+        reset
     };
 };
