@@ -1,6 +1,7 @@
 import { types } from '../types/types';
 import { firebase, googleAuthProvider } from '../firebase/firebase-config';
-import { finishLoading, removeError, setError, startLoading } from './ui';
+import Swal from 'sweetalert2';
+import { finishLoading, removeError, startLoading } from './ui';
 
 export const loginWithEmailPassword = ( email, password ) => {
     return async ( dispatch ) => {
@@ -13,7 +14,7 @@ export const loginWithEmailPassword = ( email, password ) => {
             dispatch( login( uid, displayName ) );
         } catch ( e ) {
             console.log( e );
-            dispatch( setError( e.message ) );
+            Swal.fire( 'Error!', e.message, 'error' );
             dispatch( finishLoading() );
         }
     };
@@ -31,7 +32,7 @@ export const registerUser = ( email, password, name ) => {
         } catch ( e ) {
             console.log( e );
             dispatch( finishLoading() );
-            dispatch( setError( e.message ) );
+            Swal.fire( 'Error!', e.message, 'error' );
         }
     };
 };

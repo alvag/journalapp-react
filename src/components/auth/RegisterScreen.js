@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import validator from 'validator/es';
@@ -11,10 +11,6 @@ export const RegisterScreen = () => {
 
     const dispatch = useDispatch();
     const { msgError, loading } = useSelector( state => state.ui );
-
-    useEffect( () => {
-        dispatch( removeError() );
-    }, [dispatch] );
 
     const handleRegister = () => {
 

@@ -1,18 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from '../../hooks/useForm';
 import { googleLogin, loginWithEmailPassword } from '../../actions/auth';
 import validator from 'validator/es';
-import { removeError } from '../../actions/ui';
 
 export const LoginScreen = () => {
     const dispatch = useDispatch();
-    const { loading, msgError } = useSelector( state => state.ui );
-
-    useEffect( () => {
-        dispatch( removeError() );
-    }, [dispatch] );
+    const { loading } = useSelector( state => state.ui );
 
     const handleLogin = () => {
         const { email, password } = data;
@@ -57,13 +52,6 @@ export const LoginScreen = () => {
                     value={data.password}
                     onChange={handleChange}
                 />
-
-                {
-                    msgError &&
-                    <div className='auth__alert-error'>
-                        {msgError}
-                    </div>
-                }
 
                 <button className='btn btn-primary btn-block'
                         disabled={loading}
