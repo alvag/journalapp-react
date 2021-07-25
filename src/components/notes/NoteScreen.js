@@ -54,7 +54,7 @@ export const NoteScreen = () => {
                     note.url &&
                     <div className='notes__image'>
                         <img
-                            src='https://neilpatel.com/wp-content/uploads/2017/09/image-editing-tools.jpg'
+                            src={note.url}
                             alt=''
                         />
                     </div>
