@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { NotesAppBar } from './NotesAppBar';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from '../../hooks/useForm';
 import validator from 'validator/es';
+import { activeNote } from '../../actions/notes';
 
 export const NoteScreen = () => {
+    const dispatch = useDispatch();
 
     const { active: note } = useSelector( state => state.notes );
     const activeId = useRef( note.id );
@@ -15,11 +17,15 @@ export const NoteScreen = () => {
     } );
 
     useEffect( () => {
-        if ( note.id !== activeId ) {
+        if ( note.id !== activeId.current ) {
             reset( note );
             activeId.current = note.id;
         }
     }, [note, reset] );
+
+    useEffect( () => {
+        dispatch( activeNote( data.id, { ...data } ) );
+    }, [dispatch, data] );
 
     return (
         <div className='notes__main-content'>
