@@ -17,11 +17,17 @@ export const startNewNote = () => {
 
             const doc = await db.collection( `${uid}/journal/notes` ).add( newNote );
             dispatch( activeNote( doc.id, newNote ) );
+            dispatch( notesAddNew( { id: doc.id, ...newNote } ) );
         } catch ( e ) {
             console.log( e );
         }
     };
 };
+
+export const notesAddNew = ( note ) => ( {
+    type: types.notesAddNew,
+    payload: note
+} );
 
 export const activeNote = ( id, note ) => ( {
     type: types.notesActive,
@@ -93,3 +99,25 @@ export const uploadFile = ( file ) => {
         }
     };
 };
+
+export const deletingNote = ( id ) => {
+    return async ( dispatch, getState ) => {
+        try {
+            const { uid } = getState().auth;
+            await db.doc( `${uid}/journal/notes/${id}` ).delete();
+            dispatch( deleteNote( id ) );
+        } catch ( e ) {
+            console.log( e );
+            Swal.fire( 'Error', e.message, 'error' );
+        }
+    };
+};
+
+export const deleteNote = ( id ) => ( {
+    type: types.notesDelete,
+    payload: id
+} );
+
+export const cleanNotes = () => ( {
+    type: types.notesLogoutCleaning
+} );

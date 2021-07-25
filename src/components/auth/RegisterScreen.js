@@ -63,7 +63,8 @@ export const RegisterScreen = () => {
         <>
             <h3 className='auth__title'>Register</h3>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}
+                  className='animate__animated animate__fadeIn animate__faster'>
 
                 <input
                     className={'auth__input ' + ( errors.name ? 'invalid' : '' )}

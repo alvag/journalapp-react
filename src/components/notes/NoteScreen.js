@@ -3,7 +3,7 @@ import { NotesAppBar } from './NotesAppBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from '../../hooks/useForm';
 import validator from 'validator/es';
-import { activeNote } from '../../actions/notes';
+import { activeNote, deletingNote } from '../../actions/notes';
 
 export const NoteScreen = () => {
     const dispatch = useDispatch();
@@ -26,6 +26,10 @@ export const NoteScreen = () => {
     useEffect( () => {
         dispatch( activeNote( data.id, { ...data } ) );
     }, [dispatch, data] );
+
+    const handleDelete = () => {
+        dispatch( deletingNote( note.id ) );
+    };
 
     return (
         <div className='notes__main-content'>
@@ -60,6 +64,13 @@ export const NoteScreen = () => {
                     </div>
                 }
             </div>
+
+            <button
+                className='btn btn-danger'
+                onClick={handleDelete}
+            >
+                Delete
+            </button>
         </div>
     );
 };
